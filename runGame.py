@@ -1,5 +1,5 @@
 #NAME: ISHIKA SAXENA
-#ANDREWID: isaxena
+
 import math, copy, string
 import random
 # cmu_112_graphics_final taken from 15-112 CMU Fundamentals in Programming & Computer Science Course: 
@@ -9,12 +9,12 @@ from cmu_112_graphics_final import *
 from tkinter import *
 from PIL import Image
 # PIL from https://www.pythonware.com/products/pil/
-from splashScreen1 import *
-from instructions1 import *
-from middleMode1 import *
-from board1 import *
-from word1 import *
-from rack1 import *
+from splashScreen import *
+from instructions import *
+from middleMode import *
+from board import *
+from word import *
+from rack import *
 
 # The bag of tiles. Contains distribution of letters and point values of letters.
 class Bag(object):
