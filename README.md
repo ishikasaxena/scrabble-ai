@@ -19,7 +19,7 @@ Click [here] for a complete set of rules!
 Run the `runGame.py` file, and ensure that all the files are in the same directory.
 
 ### Notes
-`english3.txt` is a dictionary downloaded from [here.]
+`english3.txt` is a dictionary downloaded from [here.] <br/>
 `cmu_112_graphics_final.py` is from [this] CMU course's (15-112 Fundamentals of Programming and Computer Science) website.
 
 ### Snapshot of Game in Action
