@@ -1,5 +1,4 @@
 #NAME: ISHIKA SAXENA
-#ANDREWID: isaxena
 import math, copy, string
 import random
 # cmu_112_graphics_final taken from 15-112 CMU Fundamentals in Programming & Computer Science Course: 
