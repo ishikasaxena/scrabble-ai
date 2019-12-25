@@ -23,7 +23,7 @@ Run the `runGame.py` file, and ensure that all the files are in the same directo
 `cmu_112_graphics_final.py` is from [this] CMU course's (15-112 Fundamentals of Programming and Computer Science) website.
 
 ### Snapshot of Game in Action
-
+<img width="794" alt="scrabbleSnapshotImg" src="https://user-images.githubusercontent.com/56605721/71451464-27f74f80-2744-11ea-9185-cd061e69bff3.png">
 
 [here]:https://scrabble.hasbro.com/en-us/rules
 [Python3]:https://www.python.org/download/releases/3.0/
