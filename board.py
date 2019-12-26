@@ -1,15 +1,13 @@
-#NAME: ISHIKA SAXENA
+#Author: ISHIKA SAXENA
 
 import math, copy, string
 import random
-# cmu_112_graphics_final taken from 15-112 CMU Fundamentals in Programming & Computer Science Course: 
-# Taken from https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
+# cmu_112_graphics_final taken from https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
 from cmu_112_graphics_final import *
 from tkinter import *
 from PIL import Image
 
-# class Board stores many attributes of the board and many methods involving drawing
-# tiles on the board and generally managing the board
+# Board class manages the board (e.g. draws the tiles, forms possible words)
 class Board(object):
     def __init__(self, app):
         self.app = app
@@ -24,8 +22,8 @@ class Board(object):
         self.finalizedTilesToDraw = []
         self.rowscolsToRemoveIfPlayerMessesUp = []
     
+    # initialize multipliers' board locations and colors
     def initializeSpecialSpotsLocations(self):
-        # these 4 store the row / cols positions:
         self.tripleWordLocations = [(0,0), (0,7), (0,14), (7,0), (7,14), (14,0), (14,7), (14,14)]
         self.doubleWordLocations = [(1,1), (1,13), (2,2), (2,12), (3,3), (3,11), (4,4), (4,10),
                                     (7,7), (10,4), (10,10), (11,3),(11,11), (12,2), (12,12),
@@ -96,13 +94,13 @@ class Board(object):
             canvas.create_text(startX + (4*sizeX/5), startY+(2*sizeY/3), 
                     text=points, fill="black",font="Helvetica 10 bold")
     
-    # textBoard houses string values currently on the board
+    # textBoard houses string values (i.e. letters) currently on the board
     def updateTextBoard(self, row, col, tile):
         self.textBoard[row][col] = tile.letter
         
-    # Forms possible word via iterating through possible directions of placed letters
+    # forms possible word via iterating through possible directions of placed letters
     def formPossibleWord(self):
-        # If center tile in clickList, call function to form first word on board
+        # If center tile in clickList, call function to form "first word on board"
         if((7,7) in self.app.currentPlayer.clickList):
             self.formFirstWordOnBoard()
             return
@@ -115,8 +113,7 @@ class Board(object):
             self.findUpDown(position)   
             self.findLeftRight(position)
     
-    # If there's a dash in the word, this means possibleWord is invalid bc 
-    # location is invalid which is important and will factor into further checks
+    # A dash in the word means location is invalid (i.e. there are spaces between placed letters)
     def checkIfDashInWord(self):
         val = self.decideIfRowsOrColsAreChanging() # decides whether rows or columns are changing
         word = ""
@@ -130,7 +127,7 @@ class Board(object):
             for position in self.app.currentPlayer.clickList:
                 tempList.append(position[0])
                 unchangingVal = position[1]
-        # we'll sort tempList now to sort the indexes so we can iterate through them more easily
+        # sort tempList now to sort the indexes so we can iterate through them more easily
         tempList.sort()
         minVal = tempList[0]
         maxVal = tempList[len(tempList)-1]
@@ -139,8 +136,6 @@ class Board(object):
                 word = word + self.textBoard[unchangingVal][i]
             for c in word:
                 if c == "-":
-                    # has dash so will be eval as False from checking word 
-                    # validity function later
                     self.app.currentPlayer.wordList.append(word)
                     return
         elif val == "rows":
@@ -151,9 +146,8 @@ class Board(object):
                     self.app.currentPlayer.wordList.append(word)
                     return
 
-    # Looks through left and right for possible words and appends them to the attribute
-    # of player, possibleWord and possible wordList
-    def findLeftRight(self, position): #position is row, col
+    # Looks through left/right for possible words and appends them to Player's possibleWord
+    def findLeftRight(self, position):
         (row, col) = position
         # Empty or wall on left so go right until no more letters
         if (col-1 == -1 or self.textBoard[row][col-1] == "-") and \
@@ -172,8 +166,7 @@ class Board(object):
             self.app.currentPlayer.wordList.append(self.app.currentPlayer.possibleWord)
             self.app.currentPlayer.possibleWord = ""
             return
-        # Non-empty on left and right, so find min index of text and max index of text and
-        # start from min and go to max and form possible word
+        # Non-empty on left and right, so form word from min to max index of text
         else:
             tempList = []
             for position in self.app.currentPlayer.clickList:
@@ -194,11 +187,10 @@ class Board(object):
                 self.app.currentPlayer.possibleWord = ""
                 return
     
-    # Looks through up and down for possible words and appends them to the attribute
-    # of player, possibleWord and possible wordList
-    def findUpDown(self, position): #position is row, col
+    # Looks through up/down for possible words and appends them to Player's possibleWord
+    def findUpDown(self, position):
         (row, col) = position
-        # Empty or wall on above so below until no more letters
+        # Empty or wall on above so go down until no more letters
         if (row-1 == -1 or self.textBoard[row-1][col] == "-") \
             and (row+1 == 15 or self.textBoard[row+1][col] != "-"):
             while (row < 15) and self.textBoard[row][col] != "-":
@@ -206,7 +198,7 @@ class Board(object):
                 row = row + 1
             self.app.currentPlayer.wordList.append(self.app.currentPlayer.possibleWord)
             self.app.currentPlayer.possibleWord = "" 
-        # Empty or wall on below so go above until no more letters
+        # Empty or wall on below so go up until no more letters
         elif (row+1 == 15 or self.textBoard[row+1][col] == "-")\
             and (row-1 == -1 or self.textBoard[row-1][col] != "-"): 
             while (row > -1) and self.textBoard[row][col] != "-":
@@ -219,7 +211,7 @@ class Board(object):
         else:
             tempList = []
             for position in self.app.currentPlayer.clickList:
-                tempList.append(position[0])        #bc assuming rows are changing
+                tempList.append(position[0]) 
                 col = position[1]
             tempList.sort()
             minVal = tempList[0]
@@ -253,8 +245,7 @@ class Board(object):
         self.case23(unchangingVal, tempList, val)
     
     
-    # A case named 23 to form possible word that intersects another words,
-    # so that there's a gap in the clickList
+    # Case that finds a word that intersects another word (i.e. there's a gap in clickList)
     def case23(self, unchangingVal, tempList, val): 
         tempList.sort()
         minVal = tempList[0]
@@ -270,7 +261,7 @@ class Board(object):
             self.app.currentPlayer.wordList.append(self.app.currentPlayer.possibleWord)
             self.app.currentPlayer.possibleWord = ""
 
-    # Find whether tempList, a version of clickList, is missing any numbers/has gaps
+    # Find whether tempList, a version of clickList, is missing any numbers i.e. has gaps
     def isTempListMissingNums(self, tempList):
         tempList.sort()             
         minVal = tempList[0]
@@ -289,7 +280,7 @@ class Board(object):
         else:
             return "rows"        
 
-    # Update selected position is valid via iterating through clickList
+    # Update location validity
     def updateSelectedPositionIsValid(self): 
         # Leave spaces --> invalid
         for letter in self.app.currentPlayer.possibleWord:
@@ -297,8 +288,8 @@ class Board(object):
                 self.app.currentPlayer.selectedPositionIsValid = False
                 return    
 
-        # If the rows don't stay consistent while the cols change
-        # or the cols don't stay consistent while the rows change, invalid location
+        # row doesn't stay consistent while the cols change --> invalid location
+        # col doesn't stay consistent while the rows change --> invalid location
         seenCols = []
         seenRows = []
         if len(self.app.currentPlayer.clickList) > 1:
@@ -316,7 +307,7 @@ class Board(object):
                         return
                     seenRows.append(row)
             
-            # Edge cases for position: the four corners of the board are invalid at times
+            # Edge cases for position: four corners
             for (row, col) in self.app.currentPlayer.clickList:
                 #top left
                 if row-1==-1 and col-1==-1:
@@ -336,9 +327,8 @@ class Board(object):
                     return
 
             
-            # More edge cases for position: the border
-            # Letters on the border are only valid if they're connected to other
-            # words already on the board
+            # Edge cases for position: the border
+            # Letters on the border are only valid if they're connected to words already on the board
             for (row, col) in self.app.currentPlayer.clickList:
                 if val == "rows":
                     if col+1 == 15:
@@ -367,7 +357,7 @@ class Board(object):
                             self.app.currentPlayer.selectedPositionIsValid = True
                             return
         else:
-            # cases for only one tile being placed down, partioned into cases on the edge/border
+            # Case of only 1 tile being placed down (partioned into cases on the edge/border)
             for (row, col) in self.app.currentPlayer.clickList:
                 if col+1==15:
                     if row-1 != -1 and row+1 != 15:
@@ -416,8 +406,7 @@ class Board(object):
         
 
 
-    # getCellBounds(self, row, col) taken from 
-    # http://www.cs.cmu.edu/~112/notes/notes-animations-part1.html#exampleGrids
+    # getCellBounds(self, row, col) taken from http://www.cs.cmu.edu/~112/notes/notes-animations-part1.html#exampleGrids
     # returns cell bounds given (row, col)
     def getCellBounds(self, row, col):
         gridWidth  = self.app.width - 2*self.marginX
