@@ -1,18 +1,13 @@
-#NAME: ISHIKA SAXENA
-
 import math, copy, string
 import random
-# cmu_112_graphics_final taken from 15-112 CMU Fundamentals in Programming & Computer Science Course: 
-# Taken from https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
+# CMU Graphics file from https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
 from cmu_112_graphics_final import *
 from tkinter import *
 from PIL import Image
 
-# Word class stores the dictionary we're using and has methods to convert it to subsets of different
-# word lengths and check word membership
+# Word class stores the word dictionary and checks word membership
 class Word(object):
-    # General readFile structure taken from: 
-    # http://www.cs.cmu.edu/~112/notes/notes-strings.html#basicFileIO
+    # General readFile structure taken from: http://www.cs.cmu.edu/~112/notes/notes-strings.html#basicFileIO
     @staticmethod           
     def readFile(path):
         with open(path, "rt") as f:
