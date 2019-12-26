@@ -1,28 +1,27 @@
-#NAME: ISHIKA SAXENA
+#Author: ISHIKA SAXENA
 
 import math, copy, string
 import random
-# cmu_112_graphics_final taken from 15-112 CMU Fundamentals in Programming & Computer Science Course: 
-# Taken from https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
+# cmu_112_graphics_final taken from https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
 from cmu_112_graphics_final import *
 # tkinter from https://docs.python.org/3/library/tkinter.html
 from tkinter import *
-from PIL import Image
 # PIL from https://www.pythonware.com/products/pil/
-from splashScreen1 import *
-from instructions1 import *
-from middleMode1 import *
-from board1 import *
-from word1 import *
-from rack1 import *
+from PIL import Image
+from splashScreen import *
+from instructions import *
+from middleMode import *
+from board import *
+from word import *
+from rack import *
 
-# The bag of tiles. Contains distribution of letters and point values of letters.
+# Contains distribution of letters and point values of letters.
 class Bag(object):
     def __init__(self, app):
         self.app = app
         self.numOfTiles = 100
-        self.letterValuesDict = self.getLetterValues() #points for each letter
-        self.letterAmountsDict = self.getLetterAmounts() #amounts of each letter in bag
+        self.letterValuesDict = self.getLetterValues() 
+        self.letterAmountsDict = self.getLetterAmounts() 
 
         self.bagList = []
         self.initializeStartingBag()
@@ -62,8 +61,7 @@ class Bag(object):
         letterValuesDict["!"] = 0 #blank tile
         return letterValuesDict
 
-    # Returns dictionary mapping each tile (letter) to its amount in the bag at 
-    # the start. 
+    # Returns dictionary mapping each tile (letter) to its amount in the bag at the start. 
     def getLetterAmounts(self):
         letterAmountsDict = dict()
         letterAmountsDict["A"] = 9
@@ -95,17 +93,17 @@ class Bag(object):
         letterAmountsDict["!"] = 2 #blank tiles
         return letterAmountsDict
 
-    # Initializes starting bag by adding Tiles to it in correct amounts
+    # Initializes starting bag with correct amounts
     def initializeStartingBag(self):
         for letter in string.ascii_uppercase:
             numOfTilesOfThisLetter = self.letterAmountsDict[letter]
             for i in range(numOfTilesOfThisLetter):
                 self.bagList.append(Tile(letter, self.letterValuesDict[letter], 0, 0))
-        # add the blank tiles (bc they're not a letter):
+        # add blank tiles
         for i in range(self.letterAmountsDict["!"]):
             self.bagList.append(Tile("!", self.letterValuesDict["!"], 0, 0))
     
-    # takes a tile out randomly AND also returns the tile taken out
+    # takes a tile out randomly and returns it
     def takeFromBag(self): 
         if(self.currentAmtOfTiles > 14):
             self.currentAmtOfTiles -= 1
@@ -115,8 +113,6 @@ class Bag(object):
             self.app.gameOver = True
 
 
-
-# Tile class contains specification for the tiles that are in your rack/on the board
 class Tile(object):
     def __init__(self, letter, pointValueOfLetter, x, y):
         self.letter = letter
@@ -140,7 +136,7 @@ class Tile(object):
 
 
 
-# Player class contains attributes of Player, such as their selectedTiles and possibleWord they're building
+# Player class contains attributes of the Player
 class Player(object):
     def __init__(self, app, name, bag):
         self.app = app
@@ -174,7 +170,6 @@ class Player(object):
         self.placedLetter4 = ""
         self.currentBoardSelectionTuple = (-1, -1)
 
-    # amtOfIncrease is dependent on the WORD that the player forms/associated point values
     def increasePlayerScore(self, amtOfIncrease):
         self.score += amtOfIncrease
     
@@ -187,7 +182,7 @@ class Player(object):
                     if isinstance(tile.letter, str):
                         self.stringRack.append(tile.letter)
     
-        # Creates the list  of possible words (from list of generated words of needed length) 
+    # Generates the list of possible words (from list of generated words of needed length) 
     # based on the Rack
     def createListOfPossibleWordsBasedOnRack(self):        
         # And now, add in len 3 words (so that all len 4 words are checked before because normally of more points)
