@@ -1,14 +1,12 @@
-#NAME: ISHIKA SAXENA
-
+#Author: ISHIKA SAXENA
 import math, copy, string
 import random
-# cmu_112_graphics_final taken from 15-112 CMU Fundamentals in Programming & Computer Science Course: 
-# Taken from https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
+# cmu_112_graphics_final taken from https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
 from cmu_112_graphics_final import *
 from tkinter import *
 from PIL import Image
 
-# Middle Mode between Game and SplashScreen where user decides which mode
+# interface before GameMode, where user decides which mode to play
 class MiddleMode(Mode):
     def appStarted(mode):
         mode.player1 = ""
@@ -42,7 +40,7 @@ class MiddleMode(Mode):
         compPlX = mode.width/2
         compPlY = mode.height/2
 
-        #detect click
+        # detect click on buttons and set players' names
         if( (twoPlX <= event.x <= twoPlX+width) and (twoPlY <= event.y <= twoPlY+height) ):
             mode.player1 = "Player 1"
             mode.player2 = "Player 2"
