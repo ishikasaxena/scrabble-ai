@@ -1,14 +1,11 @@
-#NAME: ISHIKA SAXENA
-
 import math, copy, string
 import random
-# cmu_112_graphics_final taken from 15-112 CMU Fundamentals in Programming & Computer Science Course: 
-# Taken from https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
+# CMU Graphics file from https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
 from cmu_112_graphics_final import *
 from tkinter import *
 from PIL import Image
 
-# The home screen
+# Creating home page
 class SplashScreenMode(Mode):
     def redrawAll(mode, canvas):
         canvas.create_rectangle(0, 0, mode.width, mode.height, fill="brown")
