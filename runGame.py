@@ -225,6 +225,8 @@ class Player(object):
             self.sortedListOfPossibleWords.append(word)
     
     
+    # returns letter Computer must find on board in order to create any given word 
+    # (for which it has n-1 letters) and updates (row, col) location
     def findPossibleRowColToPlace(self, word):
         whatLetterWeNeed = ""                   
         listVersion = []
@@ -235,13 +237,12 @@ class Player(object):
                 whatLetterWeNeed = c
                 break
         
-        # Have all the letters
+        # Have all the letters --> don't return any letter
         if whatLetterWeNeed == "":
             self.tryThisRowCol[0] = -1
             self.tryThisRowCol[1] = -1
             return "nope"
-
-        # Find the row, col needed
+        
         for row in range (len(self.app.board.textBoard)):
             for col in range (len(self.app.board.textBoard[0])):
                 if self.app.board.textBoard[row][col] == whatLetterWeNeed:
@@ -255,8 +256,9 @@ class Player(object):
                 if self.app.board.textBoard[row][col] != "-":
                     return "nope"
         
-        return "pick a word"
+        return "pick a word"    # i.e. there are no letters on the board 
 
+    # A help mode
     def helpp(self):
         self.createStringRack()
         self.createListOfPossibleWordsBasedOnRack()
