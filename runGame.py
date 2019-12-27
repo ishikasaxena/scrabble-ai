@@ -120,7 +120,7 @@ class Tile(object):
         self.x = x
         self.y = y
         self.currentFill = "#DEB887"
-        self.isClickedOn = False        #detect whether clicked on by player
+        self.isClickedOn = False
     
     def __repr__(self):
         return str(self.letter) + ":" + str(self.pointVal)
@@ -136,13 +136,12 @@ class Tile(object):
 
 
 
-# Player class contains attributes of the Player
 class Player(object):
     def __init__(self, app, name, bag):
         self.app = app
         self.name = name
         self.score = 0
-        self.bag = bag       # pass in bag when u create player SO each player gets the same bag 
+        self.bag = bag
         self.rack = Rack(self.app, self.bag) 
         self.wordInstance = Word("forCompClass", self.bag)
         self.putBack = []      
@@ -182,29 +181,28 @@ class Player(object):
                     if isinstance(tile.letter, str):
                         self.stringRack.append(tile.letter)
     
-    # Generates the list of possible words (from list of generated words of needed length) 
-    # based on the Rack
+    # generates the list of possible words (from list of generated words of needed length)
     def createListOfPossibleWordsBasedOnRack(self):        
-        # And now, add in len 3 words (so that all len 4 words are checked before because normally of more points)
+        # and now, add in len 3 words (so that all len 4 words are checked before because normally of more points)
         for word in self.wordInstance.len3DictSet: 
             word = word.upper()
             count = 0
             listVersion = []
-            #making word into list
+            # make word into list of letters
             for c in word:
                 listVersion.append(c)
-            # we are creating a list of words for which the computer has n-1 letters (n being the len of the word)
+            # creating a list of words for which the computer has n-1 letters (n = len of the word)
             for c in listVersion:
                 if c not in self.stringRack:
                     count = count+1
-                elif word.count(c) > self.stringRack.count(c): #if not enough of a certain letter in rack
-                    count = 100 #we skip this word
+                elif word.count(c) > self.stringRack.count(c):  
+                    count = 100 # skip this word if computer doesn't have n-1 letters
             if count > 1 or count==0:
                 continue
             elif count == 1:
                 self.listOfPossibleWordsBasedOnRack.append(word)
     
-    # Calculate score of word based on just letter values
+    # calculate score of word based on just letter values
     def calculateRawScore(self, word):
         score = 0
         for c in word:
@@ -212,23 +210,22 @@ class Player(object):
                 score += self.app.b1.letterValuesDict[c]
         return score
     
-    # Create the SORTED list of possible words the computer can make
-    def createSortedListOfPossibleWords(self): 
+    
+    def createSortedListOfPossibleWords(self): # possible words that the computer can make
         import operator
-        # Create dictionary mapping each word to its score
+        # create dictionary mapping each word to its score
         tempDict = dict()
         for word in self.listOfPossibleWordsBasedOnRack:
             score = self.calculateRawScore(word)
             tempDict[word] = score
-        # Below line adapted from: https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
-        # Essentially sorting the keys of the dictionary based on their values (i.e. scores) in high to low
+        # below line adapted from: https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
+        # sorting the keys of the dictionary based on their values (i.e. scores), high to low
         sortOfTuples = sorted(tempDict.items(), key=operator.itemgetter(1), reverse=True)
         for (word, score) in sortOfTuples:
             self.sortedListOfPossibleWords.append(word)
     
     
-    def findPossibleRowColToPlace(self, word): 
-        # Find the letter we need
+    def findPossibleRowColToPlace(self, word):
         whatLetterWeNeed = ""                   
         listVersion = []
         for c in word:
