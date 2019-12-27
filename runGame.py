@@ -135,147 +135,29 @@ class Tile(object):
             self.currentFill = "#DEB887"
 
 
-
 class Player(object):
     def __init__(self, app, name, bag):
         self.app = app
         self.name = name
         self.score = 0
         self.bag = bag
-        self.rack = Rack(self.app, self.bag) 
-        self.wordInstance = Word("forCompClass", self.bag)
-        self.putBack = []      
-        self.isTurn = False     
+        self.rack = Rack(self.app, self.bag)
         self.selectedWord = ""   
         self.selectedWordIsValid = None
         self.selectedTiles = [] 
         self.boardAndWordValid = None   
         self.possibleWord = ""
         self.wordList = []
-        self.updownDone = None
-        self.leftRightDone = None
         self.selectedPositionIsValid = None
         self.selectedWordDictIsValid = None
         self.wordSelectingIsDone = False
         self.clickList = []
-        self.listOfPossibleWordsBasedOnRack = []
-        self.sortedListOfPossibleWords = []
-        self.stringRack = []  
-        self.finalPlacementOfWords = [] 
-        self.tryThisRowCol= [-1, -1]
-        self.placedLetter1 = ""
-        self.placedLetter2 = ""
-        self.placedLetter3 = ""
-        self.placedLetter4 = ""
-        self.currentBoardSelectionTuple = (-1, -1)
 
     def increasePlayerScore(self, amtOfIncrease):
         self.score += amtOfIncrease
     
-    def createStringRack(self):
-        if len(self.rack.rackList) < 7:
-            self.app.gameOver = True
-        else:
-            for tile in self.rack.rackList:
-                if isinstance(tile, Tile):
-                    if isinstance(tile.letter, str):
-                        self.stringRack.append(tile.letter)
     
-    # generates the list of possible words (from list of generated words of needed length)
-    def createListOfPossibleWordsBasedOnRack(self):        
-        # and now, add in len 3 words (so that all len 4 words are checked before because normally of more points)
-        for word in self.wordInstance.len3DictSet: 
-            word = word.upper()
-            count = 0
-            listVersion = []
-            # make word into list of letters
-            for c in word:
-                listVersion.append(c)
-            # creating a list of words for which the computer has n-1 letters (n = len of the word)
-            for c in listVersion:
-                if c not in self.stringRack:
-                    count = count+1
-                elif word.count(c) > self.stringRack.count(c):  
-                    count = 100 # skip this word if computer doesn't have n-1 letters
-            if count > 1 or count==0:
-                continue
-            elif count == 1:
-                self.listOfPossibleWordsBasedOnRack.append(word)
-    
-    # calculate score of word based on just letter values
-    def calculateRawScore(self, word):
-        score = 0
-        for c in word:
-            if "'" not in c:
-                score += self.app.b1.letterValuesDict[c]
-        return score
-    
-    
-    def createSortedListOfPossibleWords(self): # possible words that the computer can make
-        import operator
-        # create dictionary mapping each word to its score
-        tempDict = dict()
-        for word in self.listOfPossibleWordsBasedOnRack:
-            score = self.calculateRawScore(word)
-            tempDict[word] = score
-        # below line adapted from: https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
-        # sorting the keys of the dictionary based on their values (i.e. scores), high to low
-        sortOfTuples = sorted(tempDict.items(), key=operator.itemgetter(1), reverse=True)
-        for (word, score) in sortOfTuples:
-            self.sortedListOfPossibleWords.append(word)
-    
-    
-    # returns letter Computer must find on board in order to create any given word 
-    # (for which it has n-1 letters) and updates (row, col) location
-    def findPossibleRowColToPlace(self, word):
-        whatLetterWeNeed = ""                   
-        listVersion = []
-        for c in word:
-            listVersion.append(c)
-        for c in listVersion:
-            if c not in self.stringRack:
-                whatLetterWeNeed = c
-                break
-        
-        # Have all the letters --> don't return any letter
-        if whatLetterWeNeed == "":
-            self.tryThisRowCol[0] = -1
-            self.tryThisRowCol[1] = -1
-            return "nope"
-        
-        for row in range (len(self.app.board.textBoard)):
-            for col in range (len(self.app.board.textBoard[0])):
-                if self.app.board.textBoard[row][col] == whatLetterWeNeed:
-                    self.tryThisRowCol[0] = row
-                    self.tryThisRowCol[1] = col
-                    return whatLetterWeNeed
-        
-        
-        for row in range (len(self.app.board.textBoard)):
-            for col in range (len(self.app.board.textBoard[0])):
-                if self.app.board.textBoard[row][col] != "-":
-                    return "nope"
-        
-        return "pick a word"    # i.e. there are no letters on the board 
-
-    # A help mode
-    def helpp(self):
-        self.createStringRack()
-        self.createListOfPossibleWordsBasedOnRack()
-        self.createSortedListOfPossibleWords()
-        for word in self.sortedListOfPossibleWords:
-            hm = self.findPossibleRowColToPlace(word)
-            if hm == "nope" or hm == "pick a word":
-                continue
-            else:
-                print(word) #words that u have 2 letters for and 1 letter is on board
-        #self.app.help = False
-
-
-
-# Computer (or AI) class is a subclass of Player class
-# It contains attributes relevant to the computer forming its own word based on
-# location of other words on the board
+# Computer player forms its own word based on location of other words on the board
 class Computer(Player):
     def __init__(self, app, name, bag):
         super().__init__(app, name, bag)
@@ -304,18 +186,14 @@ class Computer(Player):
                     if isinstance(tile.letter, str):
                         self.stringRack.append(tile.letter)
     
-    # Called when the computer has made its turn and we must reset everything and call the next player (human)
+    # Reset everything and call the next player (human)
     def removeFromRackAndReplenishWhenDone(self):
         placedLetters = [self.placedLetter1, self.placedLetter2, self.placedLetter3, self.placedLetter4]
-        #print(placedLetters)
-        #print(self.rack.rackList)
         for letter in placedLetters:
             for tile in self.rack.rackList:
                 if tile.letter == letter:
                     self.rack.takeFromRack(tile)
-        #print(self.rack.rackList)
         self.rack.replenishRack()
-        #print(self.rack.rackList)
         self.stringRack = []
         self.listOfPossibleWordsBasedOnRack = []
         self.sortedListOfPossibleWords = []
@@ -330,7 +208,7 @@ class Computer(Player):
         self.createSortedListOfPossibleWords()
         self.app.getNextPlayer()
     
-    # Calculates the computer's score taking into account double word etc tiles and letter values
+    # Score calculation takes into account multipliers
     def calculateComputerScore(self, word):
         listOfLetters = []
         special = []
@@ -348,11 +226,9 @@ class Computer(Player):
                 special.append("dw")
             elif(row, col) in self.app.board.tripleWordLocations:
                 special.append("tw")
-        #find missing letters (i.e. letters besides the ones u placed down)
         for c in word:
             if c not in listOfLetters:
                 score = score + self.app.b1.letterValuesDict[c]
-        #do dw and tw calcs
         for thing in special:
             if thing == "dw":
                 score = score*2
@@ -361,10 +237,9 @@ class Computer(Player):
         self.score += score
 
     
-    # Creates the list  of possible words (from list of generated words of needed length) 
-    # based on the Rack
+    # Creates the list  of possible words based on rack in word length order (highest len first)
     def createListOfPossibleWordsBasedOnRack(self):
-        # First add words of len 5 to list
+        # First: add words of len 5 to list
         for word in self.wordInstance.len5DictSet:
             word = word.upper()
             count = 0
@@ -372,18 +247,18 @@ class Computer(Player):
             # making word into a list for easier traversal
             for c in word:
                 listVersion.append(c)
-            # we are creating a list of words for which the computer has n-1 letters (n being the len of the word)
+            # create a list of words for which the computer has n-1 letters (n = len of the word)
             for c in listVersion:
                 if c not in self.stringRack:
                     count = count+1
-                elif word.count(c) > self.stringRack.count(c): #if not enough of a certain letter in rack
-                    count = 100 #we skip this word
+                elif word.count(c) > self.stringRack.count(c): 
+                    count = 100 # skip this word if not enough of a certain letter in rack
             if count > 1 or count==0:
                 continue
             elif count == 1:
                 self.listOfPossibleWordsBasedOnRack.append(word)
 
-        # Next add words of length 4 to list
+        # Now: length 4 
         for word in self.wordInstance.len4DictSet:
             word = word.upper()
             count = 0
@@ -402,7 +277,7 @@ class Computer(Player):
             elif count == 1:
                 self.listOfPossibleWordsBasedOnRack.append(word)
         
-        # And now, add in len 3 words (so that all len 4 words are checked before because normally of more points)
+        # And now: length 3
         for word in self.wordInstance.len3DictSet: 
             word = word.upper()
             count = 0
@@ -415,7 +290,7 @@ class Computer(Player):
                 if c not in self.stringRack:
                     count = count+1
                 elif word.count(c) > self.stringRack.count(c): #if not enough of a certain letter in rack
-                    count = 100 #we skip this word
+                    count = 100 # we skip this word
             if count > 1 or count==0:
                 continue
             elif count == 1:
@@ -1197,7 +1072,6 @@ class GameComputerMode(Mode):
         mode.createBoard()
         mode.gameOver = False
         mode.hasSkippedTurn = False
-        mode.help = False
     
     def createBoard(mode):
         mode.board = Board(mode)           
@@ -1243,15 +1117,7 @@ class GameComputerMode(Mode):
             if mode.gameOver == True:
                 mode.appStarted()
                 mode.app.setActiveMode(mode.app.splashScreenMode)
-        elif(event.key == "h"):
-            mode.help = True
-            if mode.currentPlayer.name != "Computer":
-                mode.currentPlayer.helpp()
-                #mode.app.setActiveMode(mode.app.gameMode)
-                #mode.getNextPlayer()
-                #mode.help = False
-        elif(event.key == "d"):
-            mode.help = False
+        
 
     # Pass your turn ; gets next player
     def passYourTurn(mode):
@@ -1542,7 +1408,6 @@ class GameComputerMode(Mode):
     
     def thingsThatChangeOnNextPlayer(mode):
         mode.myWordButton.fillColor = "#DEB887"
-        #mode.help = False
 
     def redrawAll(mode, canvas):
         mode.drawBackground(canvas)
@@ -1559,20 +1424,8 @@ class GameComputerMode(Mode):
         mode.drawBagAmount(canvas)
         mode.drawSkippedTurnMsg(canvas)
         mode.drawMultiplierInfo(canvas)
-        mode.drawHelp(canvas)
         mode.drawGameOver(canvas)
     
-    def drawHelp(mode, canvas):
-        height=0
-        if mode.currentPlayer.name != "Computer" and mode.help == True:
-            canvas.create_rectangle(0, 0, mode.width, mode.height, fill="white")
-            for word in mode.currentPlayer.sortedListOfPossibleWords:
-                hm = mode.currentPlayer.findPossibleRowColToPlace(word)
-                if hm == "nope" or hm == "pick a word":
-                    continue
-                else:
-                    canvas.create_text(100, height, text=word)
-                height = height + 25
     
     # Draw multiplier information
     def drawMultiplierInfo(mode, canvas):
