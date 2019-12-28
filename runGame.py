@@ -451,8 +451,7 @@ class Computer(Player):
     def theComputerCheckGame(self): 
         self.app.hasSkippedTurn = False
         for word in self.sortedListOfPossibleWords:
-            # If at the last word in list, call next player and reset everything
-            if self.sortedListOfPossibleWords.index(word) == len(self.sortedListOfPossibleWords)-1:
+            if self.sortedListOfPossibleWords.index(word) == len(self.sortedListOfPossibleWords)-1: #last word in list
                 self.resetWhilePlaying()
                 return
             
@@ -482,18 +481,15 @@ class Computer(Player):
             if self.tryThisRowCol[0] == -1 or self.tryThisRowCol[1] == -1: #computer has all required tiles, so it's not missing 1
                 continue
             
-            # Dealing with len 3 and len 4 words
-            # Determine which case they are
+            # determine which case the current word is
             if len(word) == 3:
-                print('in len3')
                 case = self.determineWhichCase3(word)
             elif len(word) == 4:
-                print('in len 4')
                 case = self.determineWhichCase4(word)
             elif len(word) == 5:
                 case = self.determineWhichCase5(word)
-            print(word, case, whatLetterWeNeed, self.tryThisRowCol[0], self.tryThisRowCol[1], end=" ")
-            # Determine the val, True or False, of whether they can be placed there or not
+
+            # determine whether word can be placed or not
             if case == "haveFirst2Letters":
                 val = self.decideIfPlacingCase1(word)
             elif case == "haveLast2Letters":
@@ -501,7 +497,6 @@ class Computer(Player):
             elif case == "haveSide2Letters":
                 val = self.decideIfPlacingCase3(word)
             elif case == "haveFirst3Letters":
-                print("ARE U IN HERE 11")
                 val = self.decideIfPlacingCase1Len4(word)
             elif case == "haveLast3Letters":
                 val = self.decideIfPlacingCase2Len4(word)
@@ -513,7 +508,7 @@ class Computer(Player):
                 val = self.decideIfPlacingCase1Len5(word)
             elif case == "haveLast4Letters":
                 val = self.decideIfPlacingCase2Len5(word)
-            else: #no valid case
+            else: #no valid case --> moving on to next word
                 print("moving on to next word")
                 #if index of word is last thing in list ie
                 #we've reached the end, shuffle and continue
