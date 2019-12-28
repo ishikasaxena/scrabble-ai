@@ -186,7 +186,7 @@ class Computer(Player):
                     if isinstance(tile.letter, str):
                         self.stringRack.append(tile.letter)
     
-    # Reset everything and call the next player (human)
+    # Reset everything and call the next player (i.e. human)
     def removeFromRackAndReplenishWhenDone(self):
         placedLetters = [self.placedLetter1, self.placedLetter2, self.placedLetter3, self.placedLetter4]
         for letter in placedLetters:
