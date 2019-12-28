@@ -301,7 +301,7 @@ class Computer(Player):
             word = word.upper()
             count = 0
             listVersion = []
-            #making word into list
+            # making word into list
             for c in word:
                 listVersion.append(c)
             # we are creating a list of words for which the computer has n-1 letters (n being the len of the word)
@@ -332,7 +332,7 @@ class Computer(Player):
             score = self.calculateRawScore(word)
             tempDict[word] = score
         # Below line adapted from: https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
-        # Essentially sorting the keys of the dictionary based on their values (i.e. scores) in high to low
+        # Sorting the keys of the dictionary (words) based on their values (scores)
         sortOfTuples = sorted(tempDict.items(), key=operator.itemgetter(1), reverse=True)
         for (word, score) in sortOfTuples:
             self.sortedListOfPossibleWords.append(word)
@@ -508,73 +508,29 @@ class Computer(Player):
                 val = self.decideIfPlacingCase1Len5(word)
             elif case == "haveLast4Letters":
                 val = self.decideIfPlacingCase2Len5(word)
-            else: #no valid case --> moving on to next word
-                print("moving on to next word")
-                #if index of word is last thing in list ie
-                #we've reached the end, shuffle and continue
+            else: # no valid case --> moving on to next word
                 if self.sortedListOfPossibleWords.index(word) == len(self.sortedListOfPossibleWords)-1:
-                    print("ye shuffles")
-                    self.app.hasSkippedTurn = True
-                    for tile in self.rack.rackList:
-                        self.rack.takeFromRack(tile) 
-                    self.rack.replenishRack()
-                    self.stringRack = []
-                    self.listOfPossibleWordsBasedOnRack = []
-                    self.sortedListOfPossibleWords = []
-                    self.placedLetter1 = ""
-                    self.placedLetter2 = ""
-                    self.placedLetter3 = ""
-                    self.placedLetter4 = ""
-                    self.tryThisRowCol = [-1, -1]
-                    self.clickList = []
-                    self.createStringRack() #stringrackprobs @ish
-                    self.createListOfPossibleWordsBasedOnRack()
-                    self.createSortedListOfPossibleWords()
-                    self.app.getNextPlayer()
+                    self.resetWhilePlaying()
                     return
                 else:
-                    print("WaH DID YOU GO HERE 33")
                     continue
             
-            # Condition on the value of val
-            print("DID YOU READCH HERE 22")
-            print("val",val)
-            # If true ie can be placed, place it and calculate score and reset everything
-            if val == True:
-                print("in true shouldn't it go")
+            
+            if val == True: # place word
                 self.calculateComputerScore(word)
                 self.removeFromRackAndReplenishWhenDone()
                 return
-            # Else, continue until you find a word that works
-            elif val == False:
-                print("in false")
+            elif val == False: # continue until a word that works is found
                 if self.sortedListOfPossibleWords.index(word) == len(self.sortedListOfPossibleWords)-1:
-                    print("ye shuffles - in", str(case), "false")
-                    self.app.hasSkippedTurn = True
-                    for tile in self.rack.rackList:
-                        self.rack.takeFromRack(tile) 
-                    self.rack.replenishRack()
-                    self.stringRack = []
-                    self.listOfPossibleWordsBasedOnRack = []
-                    self.sortedListOfPossibleWords = []
-                    self.placedLetter1 = ""
-                    self.placedLetter2 = ""
-                    self.placedLetter3 = ""
-                    self.placedLetter4 = ""
-                    self.tryThisRowCol = [-1, -1]
-                    self.clickList = []
-                    self.createStringRack() #stringrackprobs @ish
-                    self.createListOfPossibleWordsBasedOnRack()
-                    self.createSortedListOfPossibleWords()
-                    self.app.getNextPlayer()
-                    #print(self.app.board.textBoard)
+                    self.resetWhilePlaying()
                     return
                 else:
-                    print('in hereeee')
-                    #print(self.app.board.textBoard)
-                    continue #go to next word in list of possib words, which could very well be a len4 word
+                    continue
                 
-    def decideIfPlacingCase2Len5(self, word): #have last 4 letters
+    ###########################
+    # COMPUTER PLACING WORDS #
+    ###########################
+    def decideIfPlacingCase2Len5(self, word): # Computer has last 4 letters of the word
         row = self.tryThisRowCol[0]
         col = self.tryThisRowCol[1]
         letter2 = word[1]
@@ -582,6 +538,7 @@ class Computer(Player):
         letter4 = word[3]
         letter5 = word[4]
         if row+4 < 15 and row-4 > -1 and col+4 < 15 and col-4 > -1 and row+5 < 15 and col+5 < 15:
+            # place vertically:
             if self.app.board.textBoard[row+1][col] == "-" and self.app.board.textBoard[row+2][col] == "-" \
                 and self.app.board.textBoard[row+3][col] == "-" and self.app.board.textBoard[row+4][col] == "-"\
                 and self.app.board.textBoard[row+1][col-1] == "-" and self.app.board.textBoard[row+1][col+1] == "-"\
@@ -589,16 +546,19 @@ class Computer(Player):
                 and self.app.board.textBoard[row+3][col-1] == "-" and self.app.board.textBoard[row+3][col+1] == "-"\
                 and self.app.board.textBoard[row+4][col-1] == "-" and self.app.board.textBoard[row+4][col+1] == "-"\
                 and self.app.board.textBoard[row+5][col] == "-" and self.app.board.textBoard[row-1][col] == "-":
+                # 1) update textboard with new stuff
                 self.app.board.textBoard[row+1][col] = letter2
                 self.app.board.textBoard[row+2][col] = letter3
                 self.app.board.textBoard[row+3][col] = letter4
                 self.app.board.textBoard[row+4][col] = letter5
+                # 2) draw them via adding them to clicklist
                 self.clickList.append((row+1, col))
                 self.clickList.append((row+2, col))
                 self.clickList.append((row+3, col))
                 self.clickList.append((row+4, col))
                 self.setUpDrawCase3a(letter2, letter3, letter4, letter5)
                 return True
+            # place horizontally:
             elif self.app.board.textBoard[row][col+1] == "-" and self.app.board.textBoard[row][col+2] == "-" \
                 and self.app.board.textBoard[row][col+3] == "-" and self.app.board.textBoard[row][col+4] == "-"\
                 and self.app.board.textBoard[row+1][col+1] == "-" and self.app.board.textBoard[row-1][col+1] == "-"\
@@ -617,11 +577,11 @@ class Computer(Player):
                 self.setUpDrawCase3a(letter2, letter3, letter4, letter5)
                 return True
             else:
-                return False
+                return False # go to next word
         else:
             return False
 
-    def decideIfPlacingCase1Len5(self, word): #have 1st 4 letters
+    def decideIfPlacingCase1Len5(self, word): # has first 4 letters
         row = self.tryThisRowCol[0]
         col = self.tryThisRowCol[1]
         letter1 = word[0]
@@ -629,6 +589,7 @@ class Computer(Player):
         letter3 = word[2]
         letter4 = word[3]
         if row+4 < 15 and row-4 > -1 and col+4 < 15 and col-4 > -1:
+            # place vertically:
             if self.app.board.textBoard[row-4][col] == "-" and self.app.board.textBoard[row-3][col] == "-" \
                 and self.app.board.textBoard[row-2][col] == "-" and self.app.board.textBoard[row-1][col] == "-" \
                 and self.app.board.textBoard[row-4][col-1] == "-"  and self.app.board.textBoard[row-4][col+1] == "-" \
@@ -646,6 +607,7 @@ class Computer(Player):
                 self.clickList.append((row-1, col))
                 self.setUpDrawCase3a(letter1, letter2, letter3, letter4)
                 return True
+            # place horizontally:
             elif self.app.board.textBoard[row][col-4] == "-" and self.app.board.textBoard[row][col-3] == "-" \
                 and self.app.board.textBoard[row][col-2] == "-" and self.app.board.textBoard[row][col-1] == "-" \
                 and self.app.board.textBoard[row+1][col-4] == "-"  and self.app.board.textBoard[row-1][col-4] == "-" \
@@ -668,16 +630,15 @@ class Computer(Player):
         else:
             return False
 
-    # Determines whether computer can place a word of case 4, len 4, meaning that
-    # The computer has the first, second, and fourth letter of the word and must find the third one
-    # (More comments given in decideIfPlacingCase1(self, word) below)
-    def decideIfPlacingCase4Len4(self, word):
+   
+    def decideIfPlacingCase4Len4(self, word): # has first, second, and fourth letter
         row = self.tryThisRowCol[0]
         col = self.tryThisRowCol[1]
         letter1 = word[0]
         letter2 = word[1]
         letter4 = word[3]
         if row+3 < 15 and row-3 > -1 and col+3 < 15 and col-3 > -1:
+            # place vertically:
             if self.app.board.textBoard[row-2][col] == "-" and self.app.board.textBoard[row-1][col] == "-" and self.app.board.textBoard[row+1][col] == "-" \
                 and self.app.board.textBoard[row-2][col+1] == "-" and self.app.board.textBoard[row-2][col-1] == "-" \
                 and self.app.board.textBoard[row-1][col+1] == "-" and self.app.board.textBoard[row-1][col-1] == "-" \
@@ -689,9 +650,9 @@ class Computer(Player):
                 self.clickList.append((row-2, col))
                 self.clickList.append((row-1, col))
                 self.clickList.append((row+1, col))
-                # Draw the tiles on the board if True
                 self.setUpDrawCase2a(letter1, letter2, letter4)
                 return True
+            # place horizontally:
             elif self.app.board.textBoard[row][col-2] == "-" and self.app.board.textBoard[row][col-1] == "-" and self.app.board.textBoard[row][col+1] == "-" \
                 and self.app.board.textBoard[row-1][col-2] == "-" and self.app.board.textBoard[row+1][col-2] == "-" \
                 and self.app.board.textBoard[row-1][col-1] == "-" and self.app.board.textBoard[row+1][col-1] == "-" \
@@ -711,16 +672,15 @@ class Computer(Player):
         else:
             return False
 
-    # Determines whether computer can place a word of case 3, len 4, meaning that
-    # the computer has the first, third, and fourth letter of the word and must find the third one
-    def decideIfPlacingCase3Len4(self, word):
+    
+    def decideIfPlacingCase3Len4(self, word): # has first, third, and fourth letter
         row = self.tryThisRowCol[0]
         col = self.tryThisRowCol[1]
         letter1 = word[0]
         letter3 = word[2]
         letter4 = word[3]
         if row+3 < 15 and row-3 > -1 and col+3 < 15 and col-3 > -1:
-            #PLACE VERTICALLY
+            # place vertically:
             if self.app.board.textBoard[row-1][col] == "-" and self.app.board.textBoard[row+1][col] == "-" and self.app.board.textBoard[row+2][col] == "-" \
                 and self.app.board.textBoard[row-1][col+1] == "-" and self.app.board.textBoard[row-1][col-1] == "-" \
                 and self.app.board.textBoard[row+1][col+1] == "-" and self.app.board.textBoard[row+1][col-1] == "-" \
@@ -734,7 +694,7 @@ class Computer(Player):
                 self.clickList.append((row+2, col))
                 self.setUpDrawCase2a(letter1, letter3, letter4)
                 return True
-            #PLACE HORIZ
+            # place horizontally:
             elif self.app.board.textBoard[row][col-1] == "-" and self.app.board.textBoard[row][col+1] == "-" and self.app.board.textBoard[row][col+2] == "-" \
                 and self.app.board.textBoard[row-1][col-1] == "-" and self.app.board.textBoard[row+1][col-1] == "-" \
                 and self.app.board.textBoard[row-1][col+1] == "-" and self.app.board.textBoard[row+1][col+1] == "-" \
@@ -753,9 +713,8 @@ class Computer(Player):
         else:
             return False
 
-    # Determines whether computer can place a word of case 2, len 4, meaning that
-    # The computer has the last 3 letters of the word
-    def decideIfPlacingCase2Len4(self, word): 
+    
+    def decideIfPlacingCase2Len4(self, word): # has last 3 letters
         row = self.tryThisRowCol[0]
         col = self.tryThisRowCol[1]
         letter2 = word[1]
@@ -763,7 +722,7 @@ class Computer(Player):
         letter4 = word[3]
         print(letter2, letter3, letter4)
         if row+3 < 15 and row-3 > -1 and col+3 < 15 and col-3 > -1:
-            #PLACE BELOW
+            # place vertically:
             if self.app.board.textBoard[row+1][col] == "-" and self.app.board.textBoard[row+2][col] == "-" and self.app.board.textBoard[row+3][col] == "-" \
                 and self.app.board.textBoard[row+1][col+1] == "-" and self.app.board.textBoard[row+1][col-1] == "-" \
                 and self.app.board.textBoard[row+2][col+1] == "-" and self.app.board.textBoard[row+2][col-1] == "-" \
@@ -777,7 +736,7 @@ class Computer(Player):
                 self.clickList.append((row+3, col))
                 self.setUpDrawCase2a(letter2, letter3, letter4)
                 return True
-            #PLACE RIGHT
+            # place horizontally:
             elif self.app.board.textBoard[row][col+1] == "-" and self.app.board.textBoard[row][col+2] == "-" and self.app.board.textBoard[row][col+3] == "-" \
                 and self.app.board.textBoard[row-1][col+1] == "-" and self.app.board.textBoard[row+1][col+1] == "-" \
                 and self.app.board.textBoard[row-1][col+2] == "-" and self.app.board.textBoard[row+1][col+2] == "-" \
@@ -796,9 +755,8 @@ class Computer(Player):
         else:
             return False
 
-    # Determines whether computer can place a word of case 1, len 4, meaning that
-    # The computer has the first 3 letters of the word
-    def decideIfPlacingCase1Len4(self, word): 
+    
+    def decideIfPlacingCase1Len4(self, word):  # has first 3 letters
         row = self.tryThisRowCol[0]
         col = self.tryThisRowCol[1]
         print("row", str(row), "col", str(col))
@@ -806,7 +764,7 @@ class Computer(Player):
         letter2 = word[1]
         letter3 = word[2]
         if row+3 < 15 and row-3 > -1 and col+3 < 15 and col-3 > -1:
-            #PLACE ABOVE
+            # place vertically:
             if self.app.board.textBoard[row-3][col] == "-" and self.app.board.textBoard[row-2][col] == "-" and self.app.board.textBoard[row-1][col] == "-" \
                 and self.app.board.textBoard[row-3][col+1] == "-" and self.app.board.textBoard[row-3][col-1] == "-" \
                 and self.app.board.textBoard[row-2][col+1] == "-" and self.app.board.textBoard[row-2][col-1] == "-" \
@@ -815,13 +773,12 @@ class Computer(Player):
                 self.app.board.textBoard[row-3][col] = letter1
                 self.app.board.textBoard[row-2][col] = letter2
                 self.app.board.textBoard[row-1][col] = letter3
-                print("lettersappendingToTXTB:", letter1, letter2, letter3)
                 self.clickList.append((row-3, col))
                 self.clickList.append((row-2, col))
                 self.clickList.append((row-1, col))
                 self.setUpDrawCase2a(letter1, letter2, letter3)
                 return True
-            #PLACE LEFT
+            # place horizontally:
             elif self.app.board.textBoard[row][col-3] == "-" and self.app.board.textBoard[row][col-2] == "-" and self.app.board.textBoard[row][col-1] == "-" \
                 and self.app.board.textBoard[row-1][col-3] == "-" and self.app.board.textBoard[row+1][col-3] == "-" \
                 and self.app.board.textBoard[row-1][col-2] == "-" and self.app.board.textBoard[row+1][col-2] == "-" \
@@ -830,28 +787,24 @@ class Computer(Player):
                 self.app.board.textBoard[row][col-3] = letter1
                 self.app.board.textBoard[row][col-2] = letter2
                 self.app.board.textBoard[row][col-1] = letter3
-                print("lettersappendingToTXTB:", letter1, letter2, letter3)
                 self.clickList.append((row, col-3))
                 self.clickList.append((row, col-2))
                 self.clickList.append((row, col-1))
                 self.setUpDrawCase2a(letter1, letter2, letter3)
                 return True
             else:
-                print("not append worhty")
                 return False 
         else:
-            print("not append worthy")
             return False
 
-    # Determines whether computer can place a word of case 3, len 3, meaning that
-    # The computer has the first and last letter of the word
-    def decideIfPlacingCase3(self, word):
+
+    def decideIfPlacingCase3(self, word): # has first and last letter
         row = self.tryThisRowCol[0]
         col = self.tryThisRowCol[1]
         letter1 = word[0]
         letter3 = word[2]
         if row+2 < 15 and row-2 > -1 and col+2 < 15 and col-2 > -1:
-            #PLACE ONE TILE ABOVE & ONE TILE BELOW
+            # place vertically:
             if self.app.board.textBoard[row-1][col] == "-" and self.app.board.textBoard[row+1][col] == "-" \
                 and self.app.board.textBoard[row-2][col] == "-" and self.app.board.textBoard[row+2][col] == "-" \
                 and self.app.board.textBoard[row+1][col+1] == "-" and self.app.board.textBoard[row+1][col-1] == "-" \
@@ -862,7 +815,7 @@ class Computer(Player):
                 self.clickList.append((row+1, col))
                 self.setUpDrawCase1a(letter1, letter3)
                 return True
-            #PLACE ONE TILE LEFT & ONE TILE RIGHT
+            # place horizontally:
             elif self.app.board.textBoard[row][col-1] == "-" and self.app.board.textBoard[row][col+1] == "-" \
                 and self.app.board.textBoard[row][col-2] == "-" and self.app.board.textBoard[row][col+2] == "-" \
                 and self.app.board.textBoard[row+1][col+1] == "-" and self.app.board.textBoard[row+1][col-1] == "-" \
@@ -878,15 +831,14 @@ class Computer(Player):
         else:
             return False
 
-    # Determines whether computer can place a word of case 2, len 3, meaning that
-    # The computer has the last 2 letters of the word
-    def decideIfPlacingCase2(self, word): #have last 2 letters
+   
+    def decideIfPlacingCase2(self, word): # has last 2 letters
         row = self.tryThisRowCol[0]
         col = self.tryThisRowCol[1]
         letter2 = word[1]
         letter3 = word[2]
         if row+2 < 15 and row-2 > -1 and col+2 < 15 and col-2 > -1:
-            #PLACE BELOW
+            # place vertically:
             if self.app.board.textBoard[row+2][col] == "-" and self.app.board.textBoard[row+1][col] == "-" \
                 and self.app.board.textBoard[row+2][col+1] == "-" and self.app.board.textBoard[row+2][col-1] == "-" \
                 and self.app.board.textBoard[row+1][col+1] == "-" and self.app.board.textBoard[row+1][col-1] == "-" \
@@ -897,7 +849,7 @@ class Computer(Player):
                 self.clickList.append((row+2, col))
                 self.setUpDrawCase1a(letter2, letter3)
                 return True
-            #PLACE RIGHT
+            # place horizontally:
             elif self.app.board.textBoard[row][col+1] == "-" and self.app.board.textBoard[row][col+2] == "-" \
                 and self.app.board.textBoard[row-1][col+1] == "-" and self.app.board.textBoard[row-1][col+2] == "-" \
                 and self.app.board.textBoard[row+1][col+1] == "-" and self.app.board.textBoard[row+1][col+2] == "-" \
@@ -913,28 +865,25 @@ class Computer(Player):
         else:
             return False
 
-    # Determines whether computer can place a word of case 1, len 3, meaning that
-    # The computer has the first 2 letters of the word
-    def decideIfPlacingCase1(self, word):   
+    
+    def decideIfPlacingCase1(self, word):  # has first 2 letters
         row = self.tryThisRowCol[0]
         col = self.tryThisRowCol[1]
         letter1 = word[0]
         letter2 = word[1]
         if row+2 < 15 and row-2 > -1 and col+2 < 15 and col-2 > -1:
-            #PLACE ABOVE
+            # place vertically:
             if self.app.board.textBoard[row-2][col] == "-" and self.app.board.textBoard[row-1][col] == "-" \
                 and self.app.board.textBoard[row-2][col+1] == "-" and self.app.board.textBoard[row-2][col-1] == "-" \
                 and self.app.board.textBoard[row-1][col+1] == "-" and self.app.board.textBoard[row-1][col-1] == "-" \
                 and self.app.board.textBoard[row+1][col] == "-":
-                #update textboard with new stuff
                 self.app.board.textBoard[row-2][col] = letter1
                 self.app.board.textBoard[row-1][col] = letter2
-                #draw them via adding them to clicklist
                 self.clickList.append((row-2, col))
                 self.clickList.append((row-1, col))
                 self.setUpDrawCase1a(letter1, letter2)
                 return True 
-            #PLACE LEFT
+            # place horizontally:
             elif self.app.board.textBoard[row][col-2] == "-" and self.app.board.textBoard[row][col-1] == "-" \
                 and self.app.board.textBoard[row-1][col-1] == "-" and self.app.board.textBoard[row-1][col-2] == "-" \
                 and self.app.board.textBoard[row+1][col-1] == "-" and self.app.board.textBoard[row+1][col-2] == "-" \
@@ -946,24 +895,23 @@ class Computer(Player):
                 self.setUpDrawCase1a(letter1, letter2)
                 return True
             else:
-                return False #ie go to next word
+                return False 
         else:
             return False
     
-    def setUpDrawCase1a(self, letter1, letter2): 
-        #Appending tiles, with their location and point values, for length 3 to then draw them
+    # Appending tiles (with their location and point values) for length 3 to then draw them
+    def setUpDrawCase1a(self, letter1, letter2):
         self.app.board.finalizedTilesToDraw.append( (self.clickList[0][0], self.clickList[0][1], letter1, self.bag.letterValuesDict[letter1]) )
         self.app.board.finalizedTilesToDraw.append( (self.clickList[1][0], self.clickList[1][1], letter2, self.bag.letterValuesDict[letter2]) )
         
-
-    def setUpDrawCase2a(self, letter1, letter2, letter3): 
-        #Appending tiles, with their location and point values, for length 4 to then draw them
+    # Appending tiles (with their location and point values) for length 4 to then draw them
+    def setUpDrawCase2a(self, letter1, letter2, letter3):
         self.app.board.finalizedTilesToDraw.append( (self.clickList[0][0], self.clickList[0][1], letter1, self.bag.letterValuesDict[letter1]) )
         self.app.board.finalizedTilesToDraw.append( (self.clickList[1][0], self.clickList[1][1], letter2, self.bag.letterValuesDict[letter2]) )
         self.app.board.finalizedTilesToDraw.append( (self.clickList[2][0], self.clickList[2][1], letter3, self.bag.letterValuesDict[letter3]) )
-
+    
+    # Appending tiles (with their location and point values) for length 5 to then draw them
     def setUpDrawCase3a(self, letter1, letter2, letter3, letter4):
-        #Appending tiles
         self.app.board.finalizedTilesToDraw.append( (self.clickList[0][0], self.clickList[0][1], letter1, self.bag.letterValuesDict[letter1]) )
         self.app.board.finalizedTilesToDraw.append( (self.clickList[1][0], self.clickList[1][1], letter2, self.bag.letterValuesDict[letter2]) )
         self.app.board.finalizedTilesToDraw.append( (self.clickList[2][0], self.clickList[2][1], letter3, self.bag.letterValuesDict[letter3]) )
@@ -971,10 +919,6 @@ class Computer(Player):
         
 
 
-
-
-
-# Button class holds specifications for drawing buttons and a method for drawing the button
 class Button(object):
     def __init__(self, x, y, size):
         self.x = x
@@ -1053,8 +997,9 @@ class ShuffleAndSkipButton(Button):
 
 
 
-# GameComputerMode is where the game essentially "occurs", especially via the method computerCheckGame
-# It draws everything and moves players around as well. This Game Mode is for the Computer/AI mode
+##########################
+# CONTROLLING THE GAME #
+##########################
 class GameComputerMode(Mode):
     def appStarted(mode):
         mode.b1 = Bag(mode)
@@ -1081,19 +1026,16 @@ class GameComputerMode(Mode):
     def setTileAttributes(mode):
         mode.tileSize = mode.width/15        
     
-    # Initialize the players, one of which is a Computer in this game mode
+    # Initialize the players
     def createPlayers(mode):
-        #mode.p1 = Player(mode, "Human", mode.b1)
-        #mode.p3 = Computer(mode, "Computer", mode.b1)
-
-        coolp1 = mode.app.middleMode.getPlayer1Name()
-        coolp2 = mode.app.middleMode.getPlayer2Name()
-        if coolp1 == "Player 1" and coolp2 == "Player 2":
-            mode.p1 = Player(mode, coolp1, mode.b1)
-            mode.p2 = Player(mode, coolp2, mode.b1)
+        p1Name = mode.app.middleMode.getPlayer1Name()
+        p2Name = mode.app.middleMode.getPlayer2Name()
+        if p1Name == "Player 1" and p2Name == "Player 2":
+            mode.p1 = Player(mode, p1Name, mode.b1)
+            mode.p2 = Player(mode, p2Name, mode.b1)
         else:
-            mode.p1 = Player(mode, coolp1, mode.b1)
-            mode.p2 = Computer(mode, coolp2, mode.b1)
+            mode.p1 = Player(mode, p1Name, mode.b1)
+            mode.p2 = Computer(mode, p2Name, mode.b1)
 
         mode.playerList = [mode.p1, mode.p2]
         mode.currentPlayer = mode.playerList[0]
@@ -1111,19 +1053,19 @@ class GameComputerMode(Mode):
                 mode.app.setActiveMode(mode.app.splashScreenMode)
         
 
-    # Pass your turn ; gets next player
+    # pass your turn ; gets next player
     def passYourTurn(mode):
         mode.getNextPlayer()
     
-    # Shuffle your rack ; gets next player
+    # shuffle your rack ; gets next player
     def shuffleYourRack(mode):
         for tile in mode.currentPlayer.rack.rackList:
-            mode.currentPlayer.rack.takeFromRack(tile) #gets rid of all letters in rack
+            mode.currentPlayer.rack.takeFromRack(tile)
         mode.currentPlayer.rack.replenishRack()
         mode.getNextPlayer()
     
     def mousePressed(mode, event):
-        # Detect click on tile
+        # detect click on tile
         if mode.gameOver == False:
             for tile in mode.currentPlayer.rack.rackList:
                 if(tile.x <= event.x <= tile.x+mode.tileSize) and (tile.y <= event.y <= tile.y+mode.tileSize):
@@ -1132,9 +1074,9 @@ class GameComputerMode(Mode):
                     # create selected tiles
                     mode.createSelectedTilesList(tile)
             
-            mode.checkMyWordClicking(event.x, event.y)
+            mode.checkMyWordClicking(event.x, event.y) # detect click on "My Word"
             mode.createBoardClickList(event.x, event.y)
-            mode.checkBackButtonInstructionsClicking(event.x, event.y)
+            mode.checkBackButtonInstructionsClicking(event.x, event.y) # detect click on "Back" and "Instructions"
 
     def checkBackButtonInstructionsClicking(mode, mouseX, mouseY):
         if (mode.backButton.x <= mouseX <= mode.backButton.endX) and (mode.backButton.y <= mouseY <= mode.backButton.endY):
@@ -1154,14 +1096,13 @@ class GameComputerMode(Mode):
             mode.skipButton.isClickedOn = not mode.skipButton.isClickedOn
             mode.passYourTurn()
     
-    # Check if Place Word Button is being clicked
+ 
     def checkMyWordClicking(mode, mouseX, mouseY):
         if (mode.myWordButton.x <= mouseX <= mode.myWordButton.endX) and (mode.myWordButton.y <= mouseY <= mode.myWordButton.endY):
             mode.myWordButton.isClickedOn = not mode.myWordButton.isClickedOn
             mode.myWordButton.updateFill()
             
-            # Go through click list and set selectedPositionIsValid to false if there's a 
-            # tile not connected to the others that are already on the board
+            # update location validity regarding connection to an already-present tile on the board
             for (row, col) in mode.currentPlayer.clickList:
                 if row-1==-1 and col-1==-1:
                     mode.currentPlayer.selectedPositionIsValid = False
@@ -1207,86 +1148,34 @@ class GameComputerMode(Mode):
                     mode.currentPlayer.selectedPositionIsValid = True
                     break
             
-            # If there's no tile that makes valid location true, go automatically to
-            # checkGame, where the game is run, with location validity as False
+            # location is NOT valid --> go to checkGame (where the game is run)
             if mode.currentPlayer.selectedPositionIsValid == False:
                 mode.checkGame()
                 return
             
-            # ONLY IF valid location is true, then form the word
+            # word is only formed if location IS valid
             mode.board.formPossibleWord()
-            # After forming it, update position validity again
-            mode.board.updateSelectedPositionIsValid()
+            mode.board.updateSelectedPositionIsValid() # update location validity again
+            
             for possibleWord in mode.currentPlayer.wordList:
-                print("eeek")
-                print(possibleWord)
                 w1 = Word(possibleWord, mode.b1)
                 if w1.checkWordInDictionary() == True:
-                    print("in true")
                     mode.currentPlayer.selectedWordDictIsValid = True
-                    print("dict check", mode.currentPlayer.selectedWordDictIsValid)
                 else:
-                    print("in false")
                     mode.currentPlayer.selectedWordDictIsValid = False
-                    print("dict check", mode.currentPlayer.selectedWordDictIsValid)
                     break
-            print(mode.currentPlayer.wordList)
+           
+        
             mode.checkGame()
     
-    # Checks whether human's position placement is valid
-    # If location or word is invalid, then reset everything (tiles in rackList
-    # that have been placed need to go back to rack), draw error message, 
-    # and let player try again.
-    # Else if both are TRUE, then reset everything / call next player ie computer
+    
+    # checks word and location validity, resets, and lets player try again or moves to next player
     def checkGame(mode):
         if mode.currentPlayer.selectedPositionIsValid == False:
-            mode.currentPlayer.selectedTiles = []
-            mode.currentPlayer.possibleWord = ""
-            mode.currentPlayer.wordList = []
-            for tile in mode.currentPlayer.rack.rackList:
-                    tile.isClickedOn = False
-                    tile.updateFill()
-            mode.currentPlayer.clickList = []
-
-            for (row, col) in mode.board.rowscolsToRemoveIfPlayerMessesUp:
-                (x0, y0, x1, y1) = mode.board.getCellBounds(row, col)
-                stringLetter = mode.board.textBoard[row][col]
-                pointVal = mode.b1.letterValuesDict[stringLetter]
-                while (row, col, stringLetter, pointVal) in mode.board.finalizedTilesToDraw:
-                    mode.board.finalizedTilesToDraw.remove((row, col, stringLetter, pointVal))
-
-            for (row, col) in mode.board.rowscolsToRemoveIfPlayerMessesUp:
-                mode.board.textBoard[row][col] = "-"
-            mode.board.rowscolsToRemoveIfPlayerMessesUp = []
-
-            mode.board.okayToDrawTiles = True
-            mode.myWordButton.isClickedOn = False
-            mode.myWordButton.updateFill() 
+            mode.reset()
         elif mode.currentPlayer.selectedWordDictIsValid == False:
-            mode.currentPlayer.selectedTiles = []
-            mode.currentPlayer.possibleWord = ""
-            mode.currentPlayer.wordList = []
-            for tile in mode.currentPlayer.rack.rackList:
-                    tile.isClickedOn = False
-                    tile.updateFill()
-            mode.currentPlayer.clickList = []
-
-            for (row, col) in mode.board.rowscolsToRemoveIfPlayerMessesUp:
-                (x0, y0, x1, y1) = mode.board.getCellBounds(row, col)
-                stringLetter = mode.board.textBoard[row][col]
-                pointVal = mode.b1.letterValuesDict[stringLetter]
-                while (row, col, stringLetter, pointVal) in mode.board.finalizedTilesToDraw:
-                    mode.board.finalizedTilesToDraw.remove((row, col, stringLetter, pointVal))
-
-            for (row, col) in mode.board.rowscolsToRemoveIfPlayerMessesUp:
-                mode.board.textBoard[row][col] = "-"
-            mode.board.rowscolsToRemoveIfPlayerMessesUp = []
-
-            mode.board.okayToDrawTiles = True
-            mode.myWordButton.isClickedOn = False
-            mode.myWordButton.updateFill()
-        # both are true, call next player
-        else:
+            mode.reset()
+        else: # call next player & reset everything
             mode.calculatePlayerScore()
             for tile in mode.currentPlayer.rack.rackList:
                     tile.isClickedOn = False
@@ -1314,7 +1203,33 @@ class GameComputerMode(Mode):
                 mode.gameOver = True
                 self.app.hasSkippedTurn = False
     
-    # Calculate human score
+    
+    def reset(mode):
+        mode.currentPlayer.selectedTiles = []
+        mode.currentPlayer.possibleWord = ""
+        mode.currentPlayer.wordList = []
+        for tile in mode.currentPlayer.rack.rackList:
+                tile.isClickedOn = False
+                tile.updateFill()
+        mode.currentPlayer.clickList = []
+
+        for (row, col) in mode.board.rowscolsToRemoveIfPlayerMessesUp:
+            (x0, y0, x1, y1) = mode.board.getCellBounds(row, col)
+            stringLetter = mode.board.textBoard[row][col]
+            pointVal = mode.b1.letterValuesDict[stringLetter]
+            while (row, col, stringLetter, pointVal) in mode.board.finalizedTilesToDraw:
+                mode.board.finalizedTilesToDraw.remove((row, col, stringLetter, pointVal))
+
+        for (row, col) in mode.board.rowscolsToRemoveIfPlayerMessesUp:
+            mode.board.textBoard[row][col] = "-"
+        mode.board.rowscolsToRemoveIfPlayerMessesUp = []
+
+        mode.board.okayToDrawTiles = True
+        mode.myWordButton.isClickedOn = False
+        mode.myWordButton.updateFill() 
+    
+    
+    # calculate human score
     def calculatePlayerScore(mode):
         listOfLetters = []
         special = []
@@ -1337,11 +1252,9 @@ class GameComputerMode(Mode):
                     special.append("dw")
                 elif(row, col) in mode.board.tripleWordLocations:
                     special.append("tw")
-            #find missing letters
             for c in possibleWord:
                 if c not in listOfLetters:
                     score = score + mode.b1.letterValuesDict[c]
-            #do dw and tw calcs
             for thing in special:
                 if thing == "dw":
                     score = score*2
@@ -1349,10 +1262,10 @@ class GameComputerMode(Mode):
                     score = score*3
             mode.currentPlayer.score += score
         
-    # Create board clickList by detecting where the user clicks and 
-    # don't add if Place Word has already been clicked
+        
+    # create list of where user clicks on board
     def createBoardClickList(mode, mouseX, mouseY):
-        # Don't want to add to clickList if ur click is occupied in textBoard
+        # don't want to add to clickList if click is already occupied in textBoard
         (row, col) = mode.board.getCell(mouseX, mouseY)
         if mode.board.textBoard[row][col] != "-":
             mode.board.okayToDrawTiles = False
@@ -1365,14 +1278,9 @@ class GameComputerMode(Mode):
             mode.currentPlayer.clickList.append( (row, col) )
             mode.board.rowscolsToRemoveIfPlayerMessesUp.append((row, col)) 
         mode.board.drawSelectedTilesOnBoard() 
-        ###TESTS###
-        print(mode.currentPlayer.clickList) #@@printcheck
-        #mode.board.updateSelectedPositionIsValid()
-        print(mode.currentPlayer.selectedPositionIsValid) #@printum
-        #print(mode.board.textBoard)
         
         
-    # create selected tiles list
+    # create selected tiles (from rack) list
     def createSelectedTilesList(mode, tile):           
         if((tile.isClickedOn) == True) and (tile in mode.currentPlayer.selectedTiles)\
             and (len(mode.currentPlayer.selectedTiles) == len(mode.currentPlayer.clickList)):
@@ -1387,20 +1295,27 @@ class GameComputerMode(Mode):
         elif((tile.isClickedOn == False) and (tile in mode.currentPlayer.selectedTiles)):
             mode.currentPlayer.selectedTiles.remove(tile)
 
+            
+            
     def getNextPlayer(mode):
         if mode.playerList.index(mode.currentPlayer) != (len(mode.playerList)-1):
             mode.currentPlayer = mode.playerList[mode.playerList.index(mode.currentPlayer)+1]
         else:
             mode.currentPlayer = mode.playerList[0]
         if mode.currentPlayer.name == "Computer":
-            print("in getNextPl yo")
             mode.currentPlayer.theComputerCheckGame()
 
         mode.thingsThatChangeOnNextPlayer()
     
+    
+    
     def thingsThatChangeOnNextPlayer(mode):
         mode.myWordButton.fillColor = "#DEB887"
 
+        
+    ###################
+    # DRAW FUNCTIONS #
+    ###################
     def redrawAll(mode, canvas):
         mode.drawBackground(canvas)
         mode.drawWhoseTurn(canvas)
@@ -1419,7 +1334,7 @@ class GameComputerMode(Mode):
         mode.drawGameOver(canvas)
     
     
-    # Draw multiplier information
+    # draw multiplier information
     def drawMultiplierInfo(mode, canvas):
         rectX = mode.backButton.x
         rectY = mode.shuffleButton.y - mode.height/20
@@ -1450,6 +1365,7 @@ class GameComputerMode(Mode):
         canvas.create_rectangle(dlX, twY, dlX+size, twY+size, fill="red")
         canvas.create_text(dlX+40, twY+5, text="3x Word", font="Helvetica 10")
     
+    
     def drawGameOver(mode, canvas):
         if mode.gameOver == True:
             canvas.create_rectangle(0, 0, mode.width, mode.height, fill='brown')
@@ -1462,11 +1378,13 @@ class GameComputerMode(Mode):
                 canvas.create_text(mode.width/2, mode.height/2 + 100, text=winnerMsg2, font="Helvetica 25 bold")
             canvas.create_text(mode.width/2, mode.height/2 + 35, text="Press 'r' to restart", font="Helvetica 25 bold")
     
+    
     def drawBagAmount(mode, canvas):
         bagAmtX = (mode.myWordButton.x + mode.myWordButton.endX)//2
         bagAmtY = mode.myWordButton.endY + mode.height/15
         bagText = "Current Bag Amt: " + str(mode.b1.currentAmtOfTiles)
         canvas.create_text(bagAmtX, bagAmtY, text=bagText)
+    
     
     def drawPlayerScore(mode, canvas):
         scoreX = (mode.myWordButton.x + mode.myWordButton.endX)//2
@@ -1475,7 +1393,7 @@ class GameComputerMode(Mode):
         currentPlName = mode.currentPlayer.name
         canvas.create_text(scoreX, scoreY, 
                         text= str(currentPlName) + "'s Score: " + str(mode.currentPlayer.score))
-        if mode.playerList.index(mode.currentPlayer) == 0: #so other player is 1
+        if mode.playerList.index(mode.currentPlayer) == 0: 
             displayOtherScore = mode.playerList[1].score
             otherName = mode.playerList[1].name
             canvas.create_text(scoreX, otherScoreY, 
@@ -1489,21 +1407,18 @@ class GameComputerMode(Mode):
         
     def drawBoard(mode, canvas):
         mode.board.drawBoard(canvas)
-        #if(len(mode.currentPlayer.clickList) > 0):
         if mode.board.okayToDrawTiles == True:
             mode.board.drawSelectedTilesOnBoard()
     
     def drawSkippedTurnMsg(mode, canvas):
         if mode.hasSkippedTurn == True:
-            print("ACTUALLY EVER IN HERE?")
             wordX = mode.width/2
             wordY = mode.myWordButton.endY + mode.height/15
             canvas.create_text(wordX, wordY, 
                 text="The computer has skipped its turn.", 
                 fill="black",font="Helvetica 15 bold")
 
-    # draws location validity/word validity error messages when assoc
-    # variables are False
+    # draws location validity/word validity error messages
     def drawDictionaryCheckMsg(mode, canvas):
         msgX = mode.width/2
         msgY = mode.myWordButton.endY + mode.height/50
@@ -1523,7 +1438,7 @@ class GameComputerMode(Mode):
             canvas.create_text(msgX, msgY2, 
                 text= "This message will disappear once you pick a valid word!", 
                 fill="black",font="Helvetica 10 bold")
-        else: #both true
+        else: # both true
             pass
         
     
@@ -1533,6 +1448,7 @@ class GameComputerMode(Mode):
         mode.instructionsButton.drawButton(canvas)
         mode.shuffleButton.drawButton(canvas)
         mode.skipButton.drawButton(canvas)
+        
         
     def drawSelectedTiles(mode, canvas):
         textX = mode.width/4.625
@@ -1568,8 +1484,6 @@ class GameComputerMode(Mode):
                         startTileY+size, fill="white", width=2)
             canvas.create_text(startTileX+(size/2), startTileY+(size/2),
                         text=letter,fill="black",font="Helvetica 15 bold")
-            
-            
 
     def drawTilesOnRack(mode, canvas):
         for tile in mode.currentPlayer.rack.rackList:
@@ -1581,7 +1495,7 @@ class GameComputerMode(Mode):
             startTileX = mode.width/4.625
             startTileY = mode.height/25 + (6.75*mode.height/10) 
             size = mode.tileSize
-            if mode.currentPlayer.rack.rackList.index(tile) == 0:   #1st tile in rack
+            if mode.currentPlayer.rack.rackList.index(tile) == 0:   # first tile on rack
                 letter = tile.letter
                 tile.x = startTileX
                 tile.y = startTileY 
@@ -1615,7 +1529,7 @@ class GameComputerMode(Mode):
                             fill="black",font="Helvetica 25 bold")
             canvas.create_text(tile.x+(4*size/5), tile.y+(2*size/3), 
                             text=str(tile.pointVal), font="Helvetica 15 bold")
-            #print(mode.currentPlayer.rack.rackList)
+            
         
     
     def drawPlayerRack(mode, canvas):
@@ -1642,6 +1556,7 @@ class GameComputerMode(Mode):
         canvas.create_rectangle(0, 0, mode.width, mode.height, fill="brown")
 
 
+        
 
 # the intermediary screen in Two-Player Mode between the two players
 class WaitForNextPlayerMode(Mode):
@@ -1659,21 +1574,19 @@ class WaitForNextPlayerMode(Mode):
 
 
 
-# General ModalApp construction (such as class MyModalApp) taken from: 
+# General ModalApp construction (such as class MyModalApp) adapted from: 
 # https://www.cs.cmu.edu/~112/notes/notes-animations-part2.html
 class MyModalApp(ModalApp):
     def appStarted(app):
         app.splashScreenMode = SplashScreenMode()
         app.instructionsMode = InstructionsMode()
         app.middleMode = MiddleMode()
-        #app.gameMode = GameMode()
         app.gameComputerMode = GameComputerMode()
         app.waitForNextPlayerMode = WaitForNextPlayerMode()
         app.setActiveMode(app.splashScreenMode)
-        app.timerDelay = 25
 
 
-# Scrabble is a trademark of Hasbro Gaming company. I just coded a version of it here.
+# Scrabble is a trademark of Hasbro Gaming company. This is just a version I coded.
 def runScrabble():
     MyModalApp(width=800, height=800)
 
