@@ -207,6 +207,25 @@ class Computer(Player):
         self.createListOfPossibleWordsBasedOnRack() 
         self.createSortedListOfPossibleWords()
         self.app.getNextPlayer()
+       
+    def resetWhilePlaying(self):
+        self.app.hasSkippedTurn = True
+        for tile in self.rack.rackList:
+            self.rack.takeFromRack(tile) 
+        self.rack.replenishRack()
+        self.stringRack = []
+        self.listOfPossibleWordsBasedOnRack = []
+        self.sortedListOfPossibleWords = []
+        self.placedLetter1 = ""
+        self.placedLetter2 = ""
+        self.placedLetter3 = ""
+        self.placedLetter4 = ""
+        self.tryThisRowCol = [-1, -1]
+        self.clickList = []
+        self.createStringRack() 
+        self.createListOfPossibleWordsBasedOnRack()
+        self.createSortedListOfPossibleWords()
+        self.app.getNextPlayer()
     
     # Score calculation takes into account multipliers
     def calculateComputerScore(self, word):
@@ -320,10 +339,8 @@ class Computer(Player):
     
     # Finds the location of the 1 letter that the computer must find on the board
     # If not found or the computer has all letters needed for the word, returns "nope"
-    # If the board is completely empty, returns "pick a word" to indicate that the computer must
-    # simply place a word since it's currently empty
+    # If the board is completely empty, returns "pick a word"
     def findPossibleRowColToPlace(self, word): 
-        # Find the letter we need
         whatLetterWeNeed = ""                   
         listVersion = []
         for c in word:
@@ -356,7 +373,7 @@ class Computer(Player):
         return "pick a word"
         
     # Given a word with length 3, determine which case it is
-    # Does the computer have the first 2 letters, or the last 2 letters, or etc
+    # (Does the computer have the first 2 letters, last 2 letters, etc)
     def determineWhichCase3(self, word):
         letter1 = word[0]
         letter2 = word[1]
@@ -377,13 +394,11 @@ class Computer(Player):
             return "nope"
     
     # Given a word with length 4, determine which case it is
-    # Does the computer have the first 3 letters, or the last 3 letters, or etc
     def determineWhichCase4(self, word):
         letter1 = word[0]
         letter2 = word[1]
         letter3 = word[2]
         letter4 = word[3]
-        #have First3Letters, Last3Letters, First1Last2Letters, First2Last1Letters
         if letter1 in self.stringRack and letter2 in self.stringRack and letter3 in self.stringRack:
             self.placedLetter1 = letter1
             self.placedLetter2 = letter2
@@ -408,7 +423,6 @@ class Computer(Player):
             return "nope"
     
     # Given a word with length 5, determine which case it is
-    # Does the computer have the first 4 letters, or the last 4 letters, or etc
     def determineWhichCase5(self, word):
         letter1 = word[0]
         letter2 = word[1]
@@ -431,32 +445,15 @@ class Computer(Player):
             return "haveLast4Letters"
 
     
-    # This method controls the placing of word by the computer, a sort of backtracking idea
-    # that loops through the list of possible words, and then calls methods to check whether 
-    # these words would have valid placements. If a word does have valid placement, goes to the next word
-    # It checks words of higher scores first.
+    # Controls the placing of word by the computer via a sort of backtracking that checks words of higher scores first
+    # 1) Loops through the list of possible words
+    # 2) Checks whether these words have valid placements
     def theComputerCheckGame(self): 
-        self.app.hasSkippedTurn = False # the computer hasn't skipped a turn yet
+        self.app.hasSkippedTurn = False
         for word in self.sortedListOfPossibleWords:
             # If at the last word in list, call next player and reset everything
             if self.sortedListOfPossibleWords.index(word) == len(self.sortedListOfPossibleWords)-1:
-                self.app.hasSkippedTurn = True
-                for tile in self.rack.rackList:
-                    self.rack.takeFromRack(tile) 
-                self.rack.replenishRack()
-                self.stringRack = []
-                self.listOfPossibleWordsBasedOnRack = []
-                self.sortedListOfPossibleWords = []
-                self.placedLetter1 = ""
-                self.placedLetter2 = ""
-                self.placedLetter3 = ""
-                self.placedLetter4 = ""
-                self.tryThisRowCol = [-1, -1]
-                self.clickList = []
-                self.createStringRack() 
-                self.createListOfPossibleWordsBasedOnRack()
-                self.createSortedListOfPossibleWords()
-                self.app.getNextPlayer()
+                self.resetWhilePlaying()
                 return
             
             # what letter computer needs
@@ -464,8 +461,8 @@ class Computer(Player):
             if whatLetterWeNeed == "nope": #ie whatLetterWeNeed isn't found on board
                 continue
             elif whatLetterWeNeed == "pick a word": #ie no letters currently on the board
-                firstCompWord = word #computer is simply going to place current word, if it's of length 3
-                if len(firstCompWord) == 3:
+                firstCompWord = word
+                if len(firstCompWord) == 3: # computer places a word of len 3
                     self.placedLetter1 = firstCompWord[0]
                     self.placedLetter2 = firstCompWord[1]
                     self.placedLetter3 = firstCompWord[2]
@@ -1686,4 +1683,3 @@ def runScrabble():
     MyModalApp(width=800, height=800)
 
 runScrabble()
-
