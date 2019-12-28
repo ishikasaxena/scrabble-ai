@@ -720,7 +720,6 @@ class Computer(Player):
         letter2 = word[1]
         letter3 = word[2]
         letter4 = word[3]
-        print(letter2, letter3, letter4)
         if row+3 < 15 and row-3 > -1 and col+3 < 15 and col-3 > -1:
             # place vertically:
             if self.app.board.textBoard[row+1][col] == "-" and self.app.board.textBoard[row+2][col] == "-" and self.app.board.textBoard[row+3][col] == "-" \
@@ -759,7 +758,6 @@ class Computer(Player):
     def decideIfPlacingCase1Len4(self, word):  # has first 3 letters
         row = self.tryThisRowCol[0]
         col = self.tryThisRowCol[1]
-        print("row", str(row), "col", str(col))
         letter1 = word[0]
         letter2 = word[1]
         letter3 = word[2]
