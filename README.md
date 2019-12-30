@@ -25,7 +25,9 @@ Run the `runGame.py` file, and ensure that all the files are in the same directo
 ### Snapshot of Game in Action
 <img width="791" alt="Screen Shot 2019-12-25 at 7 40 43 PM" src="https://user-images.githubusercontent.com/56605721/71452060-b1138400-274e-11ea-8876-ae47ef70e857.png">
 
+The author is [Ishika Saxena]
 [here]:https://scrabble.hasbro.com/en-us/rules
 [Python3]:https://www.python.org/download/releases/3.0/
 [here.]:http://www.gwicks.net/dictionaries.htm
 [this]:https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
+[Ishika Saxena]:https://github.com/ishikasaxena
